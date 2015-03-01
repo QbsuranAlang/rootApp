@@ -1,0 +1,31 @@
+#!/bin/bash
+
+cd "/Applications/rootApp.app/"
+
+# process origin binary
+mv rootApp rootApp_
+chown root.wheel rootApp_
+chmod +s         rootApp_
+
+cont=`cat <<"EOF"
+#!/bin/bash
+dir=$(dirname "$0")
+exec "${dir}"/rootApp_ "$@"
+EOF
+`
+# create new fake binary
+echo -e "$cont" > rootApp
+chown root.wheel  rootApp
+chmod +x          rootApp
+
+#The RESPRING script after Install
+declare -a cydia
+cydia=($CYDIA)
+
+if [[ $1 == install || $1 == upgrade ]]; then
+if [[ ${CYDIA+@} ]]; then
+eval "echo 'finish:restart' >&${cydia[0]}"
+fi
+fi
+
+exit
